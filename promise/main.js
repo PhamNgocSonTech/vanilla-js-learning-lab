@@ -17,48 +17,71 @@ function xmlSendReq(method, url) {
           resolve(xhr.responseText);
         }
       } else {
-        reject("Network Error");
+        reject(`HTTP Code: ${xhr.status}`);
       }
+    };
+    xhr.onerror = () => {
+      reject("Network Error.");
     };
   });
 }
 
-const header = document.querySelector(".header");
-const footer = document.querySelector(".footer");
-const provincesList = document.querySelector(".provinces-list");
+function getFirstProvince() {
+  return xmlSendReq("GET", `https://34tinhthanh.com/api/provinces`).then(
+    (result) => result[0]
+  );
+}
 
-xmlSendReq("GET", "./partials/header.html").then((responseText) => {
-  header.innerHTML = responseText;
-});
+function getFirstWard(provinceCode) {
+  return xmlSendReq(
+    "GET",
+    `https://34tinhthanh.com/api/wards?province_code=${provinceCode}`
+  ).then((result) => result[0]);
+}
 
-xmlSendReq("GET", "./partials/footer.html").then((responseText) => {
-  footer.innerHTML = responseText;
-});
-
-xmlSendReq("GET", "https://34tinhthanh.com/api/provinces").then((result) => {
-  const response = result;
-  const provinces = response;
-  provinces.forEach((province) => {
-    const item = document.createElement("li");
-    item.textContent = province.name;
-    provincesList.appendChild(item);
+getFirstProvince()
+  .then((province) => getFirstWard(province.province_code))
+  .then((result) => console.log(result))
+  .catch((err) => {
+    console.error("Error:", err);
   });
-});
 
-xmlSendReq("GET", "https://34tinhthanh.com/api/provinces")
-  .then((result) => {
-    const provinces = result;
-    const firstProvince = provinces[0];
-    return xmlSendReq(
-      "GET",
-      `https://34tinhthanh.com/api/wards?province_code=${firstProvince.province_code}`
-    );
-  })
-  .then((result) => {
-    const ward = result;
-    const firstWard = ward[0];
-    console.log(firstWard);
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+// const header = document.querySelector(".header");
+// const footer = document.querySelector(".footer");
+// const provincesList = document.querySelector(".provinces-list");
+
+// xmlSendReq("GET", "./partials/header.html").then((responseText) => {
+//   header.innerHTML = responseText;
+// });
+
+// xmlSendReq("GET", "./partials/footer.html").then((responseText) => {
+//   footer.innerHTML = responseText;
+// });
+
+// xmlSendReq("GET", "https://34tinhthanh.com/api/provinces").then((result) => {
+//   const response = result;
+//   const provinces = response;
+//   provinces.forEach((province) => {
+//     const item = document.createElement("li");
+//     item.textContent = province.name;
+//     provincesList.appendChild(item);
+//   });
+// });
+
+// xmlSendReq("GET", "https://34tinhthanh.com/api/provinces")
+//   .then((result) => {
+//     const provinces = result;
+//     const firstProvince = provinces[0];
+//     return xmlSendReq(
+//       "GET",
+//       `https://34tinhthanh.com/api/wards?province_code=${firstProvince.province_code}`
+//     );
+//   })
+//   .then((result) => {
+//     const ward = result;
+//     const firstWard = ward[0];
+//     console.log(firstWard);
+//   })
+//   .catch((error) => {
+//     console.log(error);
+//   });

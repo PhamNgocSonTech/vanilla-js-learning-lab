@@ -3,7 +3,11 @@ async function send(method, url) {
   if (!res.ok) throw new Error(`HTTP Code:${res.status}`);
   const type = res.headers.get("content-type");
   const isJson = type && type.includes("application/json");
-  return isJson ? res.json() : res.text();
+  try {
+    return isJson ? await res.json() : await res.text();
+  } catch (error) {
+    throw new Error("Invalid JSON format!");
+  }
 }
 
 const header = document.querySelector(".header");
